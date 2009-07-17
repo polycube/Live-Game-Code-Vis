@@ -1,0 +1,1 @@
+insertClr=0x40BFFF&deleteClr=0xFF4060&equalClr=0xFFFFFF

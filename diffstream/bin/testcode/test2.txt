@@ -1,0 +1,71 @@
+﻿package 
+{
+	import flash.display.Sprite;
+	// inserted line
+	// another inserted line
+	public class Main extends Sprite
+	{
+		public function Main():void
+		{
+			if (stage) init("beep");
+			else addEventListener(Event.ADDED_TO_STAGE, init);
+		}
+		
+		private function init(e:Event = null):void
+		{
+			removeEventListener(Event.ADDED_TO_STAGE, init);
+			// entry point
+		}
+		
+		private function toBeRemoved():void
+		{
+			var s:String = "This function will be removed.";
+
+			txtTest.textColor = 0xFFFFFF;
+			var textFormat:TextFormat = new TextFormat(null, 4);
+			txtTest.defaultTextFormat = textFormat;
+			txtTest.text = "";
+			txtTest.autoSize = TextFieldAutoSize.LEFT;
+			txtTest.type = TextFieldType.INPUT;
+			txtTest.multiline = true;
+			stage.addChild(txtTest);
+			txtTest.addEventListener(Event.CHANGE, textChange);
+
+			differ = new diff_match_patch;
+			
+			for (var i:uint = 0; i < lineLength.length; i++)
+			{
+				lineLength[i] = 0;
+			}
+			
+			timer.addEventListener(TimerEvent.TIMER, tick);
+			timer.start();
+
+			if (fileNum > 4) { return; }
+			
+			currentLine++;
+			currentCol = 0;
+			
+			/*var request:URLRequest = new URLRequest("F:\\datavis\\diffs\\diff0" + fileNum.toString() + ".txt");
+			loader = new URLLoader();
+			loader.dataFormat = URLLoaderDataFormat.TEXT;
+			loader.addEventListener(Event.COMPLETE, loadComplete);
+			loader.load(request);
+			fileNum++;*/
+			
+			var request:URLRequest = new URLRequest("F:\\datavis\\testcode\\test" + fileNum.toString() + ".txt");
+			loader = new URLLoader();
+			loader.dataFormat = URLLoaderDataFormat.TEXT;
+			loader.addEventListener(Event.COMPLETE, loadComplete);
+			loader.load(request);
+			fileNum++;
+		}
+		
+		private function loadComplete(e:Event):void
+		{
+			//trace(loader.data);
+			var data:String = loader.data;
+			dataArray = data.split('@');
+		}
+	}
+}

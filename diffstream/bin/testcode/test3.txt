@@ -1,0 +1,108 @@
+﻿package 
+{
+	import flash.display.Sprite;
+	// inserted line
+	// another inserted line
+	public class Main extends Sprite
+	{
+		public function Main():void
+		{
+			if (stage) init();
+			else addEventListener(Event.ADDED_TO_STAGE, init);
+		}
+		
+		private function init(e:Event = null):void
+		{
+			removeEventListener(Event.ADDED_TO_STAGE, init);
+			// entry point
+		}
+		
+		private function loadComplete(e:Event):void
+		{
+			//trace(loader.data);
+			var data:String = loader.data;
+			dataArray = data.split('@');
+			var text:String = new String();
+			text = "<font color=\"#808080\">";
+			
+			var currentClr:uint = 0x808080;
+			
+			for each(var s:String in dataArray)
+			{
+				var op:String = s.charAt(0);
+				s = s.substring(1, s.length);
+				//trace(s + " : " + s.length);
+				
+				if (op == '+')
+				{
+					//trace("equals");
+					//s = "</font><font color=\"#0000ff\">" + s;
+					//s = "<font color=\"#FFFF40\">" + s + "</font>";
+					currentClr = 0xFFFF40;
+				}
+				else if (op == '-')
+				{
+					//s = "<font color=\"#FF4040\">" + s + "</font>";
+					currentClr = 0xFF4040;
+				}
+				else if (op == '=')
+				{
+					//s = "<font color=\"#808080\">" + s + "</font>";
+					currentClr = 0x808080;
+				}
+				
+				//trace(s.length);
+				for (var i:int = 0; i < s.length; i++)
+				{
+					if (currentCol > 16)
+					{
+						currentCol = 0;
+						currentLine++;
+					}
+					
+					var c:String = s.charAt(i);
+					var code:Number = s.charCodeAt(i);
+					if (code == 13)
+					{
+						//currentLine++;
+						//currentCol = 0;
+						//trace("cr");
+					}
+					else if (code == 10)
+					{
+						//trace("lf");
+					}
+					else if (code == 9)
+					{
+						//currentCol += 4;
+					}
+					else if (c == " ") // || c == "{" || c == "}")
+					{
+						//trace(":|");
+						//currentCol++;
+					}
+					else
+					{
+						this.graphics.beginFill(currentClr, 1.0);
+						this.graphics.drawRect(currentCol * 8, currentLine * 12, 7, 11);
+						currentCol++;
+					}
+					//trace(c);
+					//trace(i);
+				}
+				var ar:Array = s.split('\n');
+				s = "";
+				for each(var str:String in ar)
+				{
+					s += str;
+				}
+				text = text + s;
+				//txtTest.appendText(/*'\n' + '\n' +*/ s);
+			}
+			text = text + "</font>";
+			//txtTest.htmlText = text;
+			
+			//timer.start();
+		}
+	}
+}
