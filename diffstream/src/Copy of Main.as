@@ -2,7 +2,6 @@
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.events.MouseEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
@@ -25,13 +24,13 @@
 		private var loader:URLLoader;
 		private var txtTest:TextField = new TextField();
 		private var timer:Timer = new Timer(1000);
+		
+		
 		private var differ:diff_match_patch;
 		
 		private var insertClr:uint = 0x00FFFF;
 		private var deleteClr:uint = 0xFF0000;
 		private var equalClr:uint = 0xFFFFFF;
-		
-		private var chars:Array; /*= new Array();*/ // array of lines (array of chars) (strings?)
 		
 		public function Main():void
 		{
@@ -70,15 +69,7 @@
 			loader.addEventListener(Event.COMPLETE, loadComplete);
 			
 			timer.addEventListener(TimerEvent.TIMER, tick);
-			timer.addEventListener(TimerEvent.TIMER_COMPLETE, timerComplete);
-			
-			stage.addEventListener(MouseEvent.CLICK, click);
 			//timer.start();
-		}
-		
-		private function click(e:MouseEvent)
-		{
-			loadFile();
 		}
 		
 		private function loadVarsComplete(e:Event):void
@@ -89,33 +80,31 @@
 			deleteClr = uint(loader.data.deleteClr);
 			equalClr = uint(loader.data.equalClr);
 			
-			//timer.start();
-			//loadFile();
+			timer.start();
 		}
 		
 		private var fileNum:uint = 0;
 		
-		private function loadFile():void
+		private function tick(e:TimerEvent):void
 		{
-			//currentLine++;
-			//currentCol = 0;
+			currentLine++;
+			currentCol = 0;
 			
 			var request:URLRequest = new URLRequest("testcode\\test" + fileNum.toString() + ".txt");
 			loader.load(request);
-			//trace("file " + fileNum + " loaded");
 			fileNum++;
 		}
 		
 		private function onIoError(e:IOErrorEvent):void
 		{
-			trace("io error");
-			//timer.stop();
+			//trace("io error");
+			timer.stop();
 		}
 		
 		private var dataArray:Array;
 		
 		private var currentLine:uint = 0;
-		//private var currentCol:uint = 0;
+		private var currentCol:uint = 0;
 		
 		private var data1:String = null;
 		private var data2:String = null;
@@ -126,7 +115,7 @@
 		
 		private function loadComplete(e:Event):void
 		{
-			//trace("load complete"); //loader.data);
+			//trace(loader.data);
 			data1 = data2;
 			data2 = loader.data;
 			
@@ -134,8 +123,6 @@
 			
 			if (data1 == null)
 			{
-				//trace("return");
-				loadFile();
 				return;
 			}
 			else
@@ -148,18 +135,19 @@
 			
 			var currentClr:uint = 0xE0E040;
 			
+			var chars:Array = new Array(); // array of lines (array of chars) (strings?)
+			//var chars:Vector.<uint> = new Vector().<uint>;
+			
 			currentLine = 0;
-			chars = new Array(1);
-			chars[currentLine] = new Array(1);
-			chars[currentLine][0] = lineLength[currentLine];
-			//currentCol = lineLength[0];
+			chars[currentLine] = new Array();
+			currentCol = lineLength[0];
 			
 			a += 0.20;
 			
 			//if (fileNum == 8)
 			//{
-			//graphics.beginFill(0x282828, 0.2);
-			//graphics.drawRect(0, 0, this.width, this.height);
+			graphics.beginFill(0x282828, 0.2);
+			graphics.drawRect(0, 0, this.width, this.height);
 			//}
 			
 			for each(var d:Diff in diff) // s is a diff chunk
@@ -177,13 +165,33 @@
 					currentClr = equalClr; //0xFFFFFF;
 				}
 				
+				//var ar:Array = d.text.split('\n'); // ar is array of lines
 				var s:String = "";
 				
-				s = d.text;
+				//var myPattern:RegExp = /\s/g;
 				
+				//for each(var str:String in ar) // str is line of chunk
+				//{
+					/*var tempStr:String = str.replace(myPattern, "");
+					if (tempStr == "{" || tempStr == "}" || tempStr == "")
+					{
+						str = "";
+					}*/
+				s = d.text; //str;
+					//s = str.replace(myPattern, "");
+					//s = str.replace(new RegExp(" ", "g"), "");
+					//trace(str);
+				
+					//trace(s.length);
 				for (var i:int = 0; i < s.length; i++)
 				{
-					//var c:String = s.charAt(i);
+					if (currentCol > 80)
+					{
+						//currentCol = 0;
+						//currentLine++;
+					}
+					
+					var c:String = s.charAt(i);
 					var code:Number = s.charCodeAt(i);
 					if (code == 13) // carriage return
 					{
@@ -193,15 +201,13 @@
 							lineLength[currentLine] = -1;
 						}
 						currentLine++;
-						chars[currentLine] = new Array(1);
-						chars[currentLine][0] = lineLength[currentLine];
+						chars[currentLine] = new Array();
 						while (lineLength[currentLine] == -1 && currentLine < lineLength.length)
 						{
 							currentLine++;
-							chars[currentLine] = new Array(1);
-							chars[currentLine][0] = lineLength[currentLine];
+							chars[currentLine] = new Array();
 						}
-						//currentCol = lineLength[currentLine]; //0;
+						currentCol = lineLength[currentLine]; //0;
 					}
 					else if (code == 10) // line feed
 					{
@@ -211,67 +217,33 @@
 						/*currentCol += 4;
 						lineLength[currentLine] += 4;*/
 					}
+					/*else if (c == " ") // || c == "{" || c == "}")
+					{
+						//trace(":|");
+						//currentCol++;
+					}*/
 					else //if (s.length 
 					{
 						chars[currentLine].push(currentClr);
 						
 						// draw lines
-						/*this.graphics.beginFill(currentClr, 1.0);
+						this.graphics.beginFill(currentClr, 1.0);
 						this.graphics.drawRect(currentCol * 3, currentLine * 4, 3, 3);
-						currentCol++;*/
+						currentCol++;
 						lineLength[currentLine]++;
 					}
 				}
+				trace(chars[currentLine]);
 			}
-			
-			currentCol = 0;
-			timer.reset();
-			timer.repeatCount = 100;
-			timer.delay = 20;
-			timer.start();
-			
-			//trace("processing complete");
-			
-			//lineLength[0] += 48;
+			//lineLength[0] += 64;
 		}
 		
-		private var currentCol:uint;
-		
-		private function tick(e:TimerEvent):void
+		private function textChange(e:Event):void
 		{
-			//trace("tick");
-			for (var l:int = 0; l < chars.length; l++)
-			{
-				/*this.graphics.beginFill(0xFFC040, 1.0);
-				this.graphics.drawRect(0, l * 4, 3, 4);*/
-				/*if (l == 0)
-				{
-					trace(chars[l][0]);
-				}*/
-				
-				//for (var j:int = 1; j < chars[l].length; j++)
-				//{
-				if (chars[l].length - 1 > currentCol)
-				{
-					this.graphics.beginFill(chars[l][currentCol + 1], 1.0);
-					this.graphics.drawRect((chars[l][0] + currentCol) * 1, l * 1, 1, 1);
-				}
-				//}
-				
-				// get longest line to determine time interval
-				// set timer
-				// on tick, advance current char/col and draw char if not past range
-				// when anim done, call load
-				// when load done, start anim timer
-				// stop anim timer when done animating
-			}
-			currentCol++;
 		}
 		
-		private function timerComplete(e:TimerEvent):void
+		private function Update(/*e:Event*/):void
 		{
-			//trace("timer complete");
-			loadFile();
 		}
 	}
 }

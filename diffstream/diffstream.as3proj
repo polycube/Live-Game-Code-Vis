@@ -6,8 +6,8 @@
     <movie input="" />
     <movie path="bin/diffstream.swf" />
     <movie fps="60" />
-    <movie width="800" />
-    <movie height="600" />
+    <movie width="320" />
+    <movie height="240" />
     <movie version="9" />
     <movie background="#282828" />
   </output>
@@ -28,7 +28,7 @@
     <option showDeprecationWarnings="True" />
     <option showUnusedTypeSelectorWarnings="True" />
     <option strict="True" />
-    <option useNetwork="True" />
+    <option useNetwork="False" />
     <option useResourceBundleMetadata="True" />
     <option warnings="True" />
     <option verboseStackTraces="False" />
