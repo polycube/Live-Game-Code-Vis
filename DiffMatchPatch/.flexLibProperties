@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flexLibProperties version="1">
+<includeClasses>
+<classEntry path="name.fraser.neil.plaintext.Patch"/>
+<classEntry path="name.fraser.neil.plaintext.ArrayIterator"/>
+<classEntry path="name.fraser.neil.plaintext.Diff"/>
+<classEntry path="name.fraser.neil.plaintext.Operation"/>
+<classEntry path="name.fraser.neil.plaintext.diff_match_patch"/>
+</includeClasses>
+<includeResources/>
+<namespaceManifests/>
+</flexLibProperties>
