@@ -4,16 +4,17 @@
   <output>
     <movie disabled="False" />
     <movie input="" />
-    <movie path="bin/diffstream.swf" />
+    <movie path="bin\diffstream.swf" />
     <movie fps="60" />
-    <movie width="320" />
-    <movie height="240" />
+    <movie width="800" />
+    <movie height="600" />
     <movie version="9" />
     <movie background="#282828" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="src" />
+    <class path="..\DiffMatchPatch" />
   </classpaths>
   <!-- Build options -->
   <build>
@@ -32,6 +33,8 @@
     <option useResourceBundleMetadata="True" />
     <option warnings="True" />
     <option verboseStackTraces="False" />
+    <option linkReport="" />
+    <option loadExterns="" />
     <option additional="" />
     <option customSDK="" />
   </build>

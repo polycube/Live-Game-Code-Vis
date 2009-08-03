@@ -156,12 +156,6 @@
 			
 			a += 0.20;
 			
-			//if (fileNum == 8)
-			//{
-			//graphics.beginFill(0x282828, 0.2);
-			//graphics.drawRect(0, 0, this.width, this.height);
-			//}
-			
 			for each(var d:Diff in diff) // s is a diff chunk
 			{
 				if (d.operation == Operation.INSERT)
@@ -224,10 +218,18 @@
 				}
 			}
 			
+			//if (fileNum == 8)
+			//{
+			graphics.beginFill(0x282828, 0.2);
+			graphics.drawRect(0, 0, this.width, this.height);
+			//}
+			
 			currentCol = 0;
 			timer.reset();
-			timer.repeatCount = 100;
-			timer.delay = 20;
+			/*timer.repeatCount = 100;
+			timer.delay = 20;*/
+			timer.repeatCount = 1;
+			timer.delay = 125;
 			timer.start();
 			
 			//trace("processing complete");
@@ -249,14 +251,17 @@
 					trace(chars[l][0]);
 				}*/
 				
-				//for (var j:int = 1; j < chars[l].length; j++)
-				//{
-				if (chars[l].length - 1 > currentCol)
+				for (var j:int = 1; j < chars[l].length; j++)
+				{
+				/*if (chars[l].length - 1 > currentCol)
 				{
 					this.graphics.beginFill(chars[l][currentCol + 1], 1.0);
-					this.graphics.drawRect((chars[l][0] + currentCol) * 1, l * 1, 1, 1);
+					this.graphics.drawRect((chars[l][0] + currentCol) * 3, l * 4, 3, 3);
+				}*/
+					this.graphics.beginFill(chars[l][j], 0.5);
+					//this.graphics.drawCircle((chars[l][0] + j - 1) * 3 + 1.5, l * 3 + 1.5, 1.5);
+					this.graphics.drawRect((chars[l][0] + j - 1) * 3, l * 4, 3, 3);
 				}
-				//}
 				
 				// get longest line to determine time interval
 				// set timer
