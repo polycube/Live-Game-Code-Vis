@@ -4,7 +4,7 @@
   <output>
     <movie disabled="False" />
     <movie input="" />
-    <movie path="bin/PetriPurhoDish.swf" />
+    <movie path="bin\PetriPurhoDish.swf" />
     <movie fps="30" />
     <movie width="800" />
     <movie height="600" />
@@ -32,6 +32,8 @@
     <option useResourceBundleMetadata="True" />
     <option warnings="True" />
     <option verboseStackTraces="False" />
+    <option linkReport="" />
+    <option loadExterns="" />
     <option additional="" />
     <option customSDK="" />
   </build>
