@@ -22,7 +22,7 @@
 	import name.fraser.neil.plaintext.Operation;
 	//import flash.system.Security;
 	
-	public class Main extends Sprite
+	public class Main2 extends Sprite
 	{
 		private var loader:URLLoader;
 		private var txtTest:TextField = new TextField();
@@ -33,11 +33,11 @@
 		private var deleteClr:uint = 0xFF0000;
 		private var equalClr:uint = 0xFFFFFF;
 		
-		//private var chars:Array; /*= new Array();*/ // array of lines (array of chars) (strings?)
+		private var chars:Array; /*= new Array();*/ // array of lines (array of chars) (strings?)
 		
 		private var lines:Array = new Array();
 		
-		public function Main():void
+		public function Main2():void
 		{
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
@@ -83,7 +83,7 @@
 		
 		private function click(e:MouseEvent):void
 		{
-			loadFile();
+			//loadFile();
 		}
 		
 		private function loadVarsComplete(e:Event):void
@@ -108,7 +108,7 @@
 			trace("io error");
 		}
 		
-		//private var dataArray:Array;
+		private var dataArray:Array;
 		
 		private var currentLine:uint = 0;
 		private var currentCol:uint = 0;
@@ -118,7 +118,7 @@
 		
 		//private var lineLength:Array = new Array(200);
 		
-		//private var a:Number = 0.0;
+		private var a:Number = 0.0;
 		
 		private function loadComplete(e:Event):void
 		{
@@ -142,13 +142,12 @@
 			var currentClr:uint = 0xE0E040;
 			
 			currentLine = 0;
-			//chars = new Array(); //1);
-			//chars[currentLine] = new Array();
-			var currentChars = new Array();
+			chars = new Array(1); // 1);
+			chars[currentLine] = new Array(); // 1);
+			//chars[currentLine][0] = 0; //lineLength[currentLine];
+			//currentCol = lineLength[0];
 			
-			var numInserted:uint = 0;
-			var numDeleted:uint = 0;
-			var numEqual:uint = 0;
+			a += 0.20;
 			
 			for each(var d:Diff in diff) // s is a diff chunk
 			{
@@ -169,49 +168,23 @@
 				
 				s = d.text;
 				
+				var numInserted:uint = 0;
+				var numDeleted:uint = 0;
+				var numEqual:uint = 0;
+				
 				for (var i:int = 0; i < s.length; i++)
 				{
 					var code:Number = s.charCodeAt(i);
 					if (code == 13) // carriage return
 					{
-						if (currentChars.length > 0)
+						if (chars[currentLine].length > 0)
 						{
-							if (currentLine > lines.length - 1) // new diff line
-							{
-								lines.splice(currentLine, 0, new DiffLine());
-								stage.addChild(lines[currentLine]);
-							}
-							else if (currentChars[0] == insertClr
-								&& numInserted > numDeleted && numInserted > numEqual) // inserted line
-							{
-								lines.splice(currentLine, 0, new DiffLine());
-								stage.addChild(lines[currentLine]);
-							}
-							
-							while (lines[currentLine].inactive && currentLine < lines.length) // skip inactive lines
-							{
-								currentLine++;
-								if (currentLine > lines.length - 1)
-								{
-									lines.splice(currentLine, 0, new DiffLine());
-									stage.addChild(lines[currentLine]);
-								}
-							}
-							
-							if (currentChars[currentChars.length - 1] == deleteClr &&
-								numDeleted > numEqual && numDeleted > numInserted)
-							{
-								lines[currentLine].inactive = true;
-							}
-							
-							lines[currentLine].chars = currentChars;
-							
 							currentLine++;
+							chars[currentLine] = new Array(); //1);
+							numInserted = 0;
+							numDeleted = 0;
+							numEqual = 0;
 						}
-						currentChars = new Array();
-						numInserted = 0;
-						numDeleted = 0;
-						numEqual = 0;
 					}
 					else if (code == 10) // line feed
 					{
@@ -228,13 +201,13 @@
 						/*currentCol += 4;
 						lineLength[currentLine] += 4;*/
 					}
-					else if (code == 59) // semicolon
+					else if (code == 59)
 					{
 						
 					}
 					else //if (s.length 
 					{
-						currentChars.push(currentClr);
+						chars[currentLine].push(currentClr);
 						if (currentClr == insertClr)
 						{
 							numInserted++;
@@ -259,35 +232,106 @@
 			
 			currentLine = 0;
 			
-			//for (var l:int = 0; l < chars.length; l++)
-			//while (currentLine < lines.length)
-			for (var l:int = 0; l < lines.length; l++)
+			for (var l:int = 0; l < chars.length; l++)
 			{
-				lines[l].fade();
-				
-				if (lines[l].chars != null && lines[l].chars.length > 0)
+				numInserted = 0;
+				numDeleted = 0;
+				numEqual = 0;
+				for (var j:int = 0; j < chars[l].length; j++)
 				{
-					var shp:Shape = new Shape();
-					
-					for (var j:int = 0; j < lines[l].chars.length; j++)
+					if (chars[l][j] == insertClr)
 					{
-						shp.graphics.beginFill(lines[l].chars[j], 1.0);
-						shp.graphics.drawRect((lines[l].lineLength) * 1, 0, 1, 2);
-						shp.graphics.endFill();
-						lines[l].lineLength++;
+						numInserted++;
 					}
-					
-					lines[l].addShape(shp);
+					else if (chars[l][j] == equalClr)
+					{
+						numEqual++;
+					}
+					else if (chars[l][j] == deleteClr)
+					{
+						numDeleted++;
+					}
 				}
 				
-				lines[l].lineLength++;
+				if (currentLine > lines.length - 1)
+				{
+					//lines.push(new DiffLine()); // Shape());
+					lines.splice(currentLine, 0, new DiffLine()); // Shape());
+					stage.addChild(lines[currentLine]);
+					lines[currentLine].y = currentLine * 3;
+				}
+				else if (chars[l][0] == insertClr && numInserted > numDeleted && numInserted > numEqual)// && chars[l][chars[l].length - 1] == insertClr)
+				//&& (chars[l].length == 1 || chars[l][chars[l].length - 2] == insertClr))
+				//else if (numInserted > 0 && numDeleted == 0 && numEqual == 0)
+				{
+					//l++;
+					lines.splice(currentLine, 0, new DiffLine()); // Shape());
+					stage.addChild(lines[currentLine]);
+					lines[currentLine].y = currentLine * 3;
+					//lineLength.splice(l, 0, 0);
+					//lineLength[l] = 0;
+					//trace(lineLength[l]);
+				}
 				
-				lines[l].chars = null;
+				while (lines[currentLine].inactive && currentLine < lines.length)
+				{
+					currentLine++;
+					if (currentLine > lines.length - 1)
+					{
+						//lines.push(new DiffLine()); // Shape());
+						lines.splice(currentLine, 0, new DiffLine()); // Shape());
+						stage.addChild(lines[currentLine]);
+					}
+					lines[currentLine].y = currentLine * 3;
+				}
 				
-				lines[l].y = l * 3;
+				//var lastClr:uint = 0;
+				
+				//var shp:DiffLine = lines[currentLine];
+				var shp:Shape = new Shape();
+				
+				for (var j:int = 0; j < chars[l].length; j++)
+				{
+					shp.graphics.beginFill(chars[l][j], 1.0);
+					shp.graphics.drawRect((lines[currentLine].lineLength) * 1, 0, 1, 2);
+					//shp.graphics.drawRect((currentCol + j) * 1, 0, 1, 2);
+					shp.graphics.endFill();
+					lines[currentLine].lineLength++;
+					//lastClr = chars[l][j];
+				}
+				
+				lines[currentLine].addShape(shp);
+				
+				if (chars[l][chars[l].length - 1] == deleteClr && numDeleted > numEqual && numDeleted > numInserted)
+				/*chars[l][0] == deleteClr) // &&*/
+				//&& (chars[l].length == 1 || chars[l][chars[l].length - 2] == deleteClr))
+				//if (numInserted == 0 && numDeleted > 0 && numEqual == 0) //lastClr == deleteClr)
+				{
+					lines[currentLine].inactive = true;
+					
+					/*shp.graphics.beginFill(0x80FF80, 1.0);
+					shp.graphics.drawRect((currentCol + j) * 2, 0, 2, 2);
+					shp.graphics.endFill();*/
+				}
+				
+				lines[currentLine].lineLength++;
+				
+				lines[currentLine].y = currentLine * 3;
+				currentLine++;
 			}
 			
 			currentLine = 0;
+			
+			while (currentLine < lines.length)
+			{
+				/*if (lines[currentLine].lineLength == 0)
+				{
+					trace(currentLine);
+				}*/
+				lines[currentLine].y = currentLine * 3;
+				lines[currentLine].fade();
+				currentLine++;
+			}
 			
 			currentCol += 104;
 			
@@ -306,7 +350,7 @@
 		private function timerComplete(e:TimerEvent):void
 		{
 			//trace("timer complete");
-			//loadFile();
+			loadFile();
 		}
 	}
 }
