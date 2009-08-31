@@ -25,6 +25,11 @@
 			this.addChild(shp);
 		}
 		
+		public function get lastShape():Shape
+		{
+			return shapes[shapes.length - 1];
+		}
+		
 		public function fade():void
 		{
 			for each (var shp:Shape in shapes)

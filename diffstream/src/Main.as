@@ -33,8 +33,6 @@
 		private var deleteClr:uint = 0xFF0000;
 		private var equalClr:uint = 0xFFFFFF;
 		
-		//private var chars:Array; /*= new Array();*/ // array of lines (array of chars) (strings?)
-		
 		private var lines:Array = new Array();
 		
 		public function Main():void
@@ -108,17 +106,13 @@
 			trace("io error");
 		}
 		
-		//private var dataArray:Array;
-		
 		private var currentLine:uint = 0;
 		private var currentCol:uint = 0;
 		
 		private var data1:String = null;
 		private var data2:String = null;
 		
-		//private var lineLength:Array = new Array(200);
-		
-		//private var a:Number = 0.0;
+		var linesRemaining:Array = new Array();
 		
 		private function loadComplete(e:Event):void
 		{
@@ -142,8 +136,6 @@
 			var currentClr:uint = 0xE0E040;
 			
 			currentLine = 0;
-			//chars = new Array(); //1);
-			//chars[currentLine] = new Array();
 			var currentChars = new Array();
 			
 			var numInserted:uint = 0;
@@ -205,6 +197,8 @@
 							}
 							
 							lines[currentLine].chars = currentChars;
+							lines[currentLine].addShape(new Shape());
+							linesRemaining.push(lines[currentLine]);
 							
 							currentLine++;
 						}
@@ -252,55 +246,104 @@
 			}
 			
 			//currentCol = 0;
-			timer.reset();
-			timer.repeatCount = 1;
-			timer.delay = 125;
-			timer.start();
 			
 			currentLine = 0;
 			
-			//for (var l:int = 0; l < chars.length; l++)
-			//while (currentLine < lines.length)
-			for (var l:int = 0; l < lines.length; l++)
+			var l:uint = 0;
+			
+			//var shp:Shape;
+			
+			for (l = 0; l < lines.length; l++)
 			{
 				lines[l].fade();
+				lines[l].y = l * 2;
 				
-				if (lines[l].chars != null && lines[l].chars.length > 0)
-				{
-					var shp:Shape = new Shape();
+				//if (lines[l].chars != null && lines[l].chars.length > 0)
+				//{
+					//shp = new Shape();
 					
-					for (var j:int = 0; j < lines[l].chars.length; j++)
+					/*for (var j:int = 0; j < lines[l].chars.length; j++)
 					{
 						shp.graphics.beginFill(lines[l].chars[j], 1.0);
 						shp.graphics.drawRect((lines[l].lineLength) * 1, 0, 1, 2);
 						shp.graphics.endFill();
 						lines[l].lineLength++;
-					}
+					}*/
 					
-					lines[l].addShape(shp);
-				}
+					//lines[l].addShape(shp);
+					
+					//linesRemaining.push(lines[l]);
+					//trace(linesRemaining[linesRemaining.length - 1].chars == null);
+				//}
 				
-				lines[l].lineLength++;
-				
-				lines[l].chars = null;
-				
-				lines[l].y = l * 3;
+				/*lines[l].lineLength++;
+				lines[l].chars = null;*/
 			}
+			
+			/*while (linesRemaining.length > 0)
+			{
+				l = Math.floor(Math.random() * linesRemaining.length);
+				var diffLine:DiffLine = linesRemaining[l];
+				
+				if (diffLine.chars.length == 0) { continue; }
+				var charClr:uint = diffLine.chars.shift();
+				
+				shp = diffLine.lastShape;
+				
+				shp.graphics.beginFill(charClr, 1.0);
+				shp.graphics.drawRect((diffLine.lineLength) * 1, 0, 1, 2);
+				shp.graphics.endFill();
+				diffLine.lineLength++;
+				
+				if (diffLine.chars.length == 0)
+				{
+					diffLine.lineLength++;
+					linesRemaining.splice(l, 1);
+				}
+			}*/
 			
 			currentLine = 0;
 			
 			currentCol += 104;
 			
-			//trace("processing complete");
-			
-			//lineLength[0] += 48;
+			timer.reset();
+			timer.repeatCount = 0;
+			timer.delay = 16;
+			timer.start();
 		}
 		
-		//private var currentCol:uint;
+		private var shp:Shape;
 		
 		private function tick(e:TimerEvent):void
 		{
-
+			var l:uint = Math.floor(Math.random() * linesRemaining.length);
+			var diffLine:DiffLine = linesRemaining[l];
+			
+			//if (diffLine.chars.length == 0) { return; }
+			var charClr:uint = diffLine.chars.shift();
+			
+			shp = diffLine.lastShape;
+			
+			shp.graphics.beginFill(charClr, 1.0);
+			shp.graphics.drawRect((diffLine.lineLength) * 1, 0, 1, 1);
+			shp.graphics.endFill();
+			diffLine.lineLength++;
+			
+			var drop:Drop = new Drop(charClr);
+			drop.x = (diffLine.lineLength) * 1;
+			drop.y = diffLine.y;
+			addChild(drop);
+			
+			if (diffLine.chars.length == 0)
+			{
+				diffLine.lineLength++;
+				linesRemaining.splice(l, 1);
+			}
+			
+			if (linesRemaining.length == 0)
+			{
+				timer.stop();
+			}
 		}
 		
 		private function timerComplete(e:TimerEvent):void
