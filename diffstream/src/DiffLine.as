@@ -14,6 +14,9 @@
 		private var shapes:Array = new Array();
 		public var chars:Array = null; // new Array();
 		
+		public static var minAlpha:Number = 0.4;
+		public static var alphaFade:Number = 0.1;
+		
 		public function DiffLine() 
 		{
 			

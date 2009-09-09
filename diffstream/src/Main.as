@@ -16,6 +16,7 @@
 	import flash.utils.Timer;
 	import flash.events.TimerEvent;
 	import flash.display.StageScaleMode;
+	import flash.display.StageAlign;
 	import flash.events.IOErrorEvent;
 	import name.fraser.neil.plaintext.diff_match_patch;
 	import name.fraser.neil.plaintext.Diff;
@@ -35,6 +36,13 @@
 		
 		private var lines:Array = new Array();
 		
+		private var charWidth:uint = 3;
+		private var charHeight:uint = 4;
+		private var lineSpace:uint = 2;
+		
+		private var numCharsPerFrame = 2;
+		private var scale:Number = 1.0;
+		
 		public function Main():void
 		{
 			if (stage) init();
@@ -53,6 +61,10 @@
 			trace(Security.sandboxType);*/
 			
 			stage.scaleMode = StageScaleMode.NO_SCALE;
+			stage.align = StageAlign.TOP_LEFT;
+			
+			scaleX = scale;
+			scaleY = scale;
 			
 			var settings:URLLoader = new URLLoader();
 			settings.dataFormat = URLLoaderDataFormat.VARIABLES;
@@ -71,17 +83,17 @@
 			loader.dataFormat = URLLoaderDataFormat.TEXT;
 			loader.addEventListener(Event.COMPLETE, loadComplete);
 			
-			timer.addEventListener(TimerEvent.TIMER, tick);
-			timer.addEventListener(TimerEvent.TIMER_COMPLETE, timerComplete);
+			//timer.addEventListener(TimerEvent.TIMER, tick);
+			//timer.addEventListener(TimerEvent.TIMER_COMPLETE, timerComplete);
 			
-			stage.addEventListener(MouseEvent.CLICK, click);
+			//stage.addEventListener(MouseEvent.CLICK, click);
 			//timer.start();
 			loadFile();
 		}
 		
 		private function click(e:MouseEvent):void
 		{
-			loadFile();
+			//loadFile();
 		}
 		
 		private function loadVarsComplete(e:Event):void
@@ -96,6 +108,8 @@
 		
 		private function loadFile():void
 		{
+			timer.removeEventListener(TimerEvent.TIMER_COMPLETE, loadFile);
+			timer.stop();
 			var request:URLRequest = new URLRequest("testcode\\test" + fileNum.toString() + ".txt");
 			loader.load(request);
 			fileNum++;
@@ -112,7 +126,7 @@
 		private var data1:String = null;
 		private var data2:String = null;
 		
-		var linesRemaining:Array = new Array();
+		private var linesRemaining:Array = new Array();
 		
 		private function loadComplete(e:Event):void
 		{
@@ -136,7 +150,7 @@
 			var currentClr:uint = 0xE0E040;
 			
 			currentLine = 0;
-			var currentChars = new Array();
+			var currentChars:Array = new Array();
 			
 			var numInserted:uint = 0;
 			var numDeleted:uint = 0;
@@ -171,13 +185,13 @@
 							if (currentLine > lines.length - 1) // new diff line
 							{
 								lines.splice(currentLine, 0, new DiffLine());
-								stage.addChild(lines[currentLine]);
+								addChild(lines[currentLine]);
 							}
-							else if (currentChars[0] == insertClr
+							else if (currentChars[0].clr == insertClr
 								&& numInserted > numDeleted && numInserted > numEqual) // inserted line
 							{
 								lines.splice(currentLine, 0, new DiffLine());
-								stage.addChild(lines[currentLine]);
+								addChild(lines[currentLine]);
 							}
 							
 							while (lines[currentLine].inactive && currentLine < lines.length) // skip inactive lines
@@ -186,11 +200,11 @@
 								if (currentLine > lines.length - 1)
 								{
 									lines.splice(currentLine, 0, new DiffLine());
-									stage.addChild(lines[currentLine]);
+									addChild(lines[currentLine]);
 								}
 							}
 							
-							if (currentChars[currentChars.length - 1] == deleteClr &&
+							if (currentChars[currentChars.length - 1].clr == deleteClr &&
 								numDeleted > numEqual && numDeleted > numInserted)
 							{
 								lines[currentLine].inactive = true;
@@ -222,13 +236,13 @@
 						/*currentCol += 4;
 						lineLength[currentLine] += 4;*/
 					}
-					else if (code == 59) // semicolon
+					/*else if (code == 59) // semicolon
 					{
 						
-					}
+					}*/
 					else //if (s.length 
 					{
-						currentChars.push(currentClr);
+						currentChars.push(new CodeChar(currentClr, s.charAt(i)));
 						if (currentClr == insertClr)
 						{
 							numInserted++;
@@ -245,93 +259,55 @@
 				}
 			}
 			
-			//currentCol = 0;
-			
 			currentLine = 0;
 			
 			var l:uint = 0;
 			
-			//var shp:Shape;
-			
 			for (l = 0; l < lines.length; l++)
 			{
 				lines[l].fade();
-				lines[l].y = l * 2;
-				
-				//if (lines[l].chars != null && lines[l].chars.length > 0)
-				//{
-					//shp = new Shape();
-					
-					/*for (var j:int = 0; j < lines[l].chars.length; j++)
-					{
-						shp.graphics.beginFill(lines[l].chars[j], 1.0);
-						shp.graphics.drawRect((lines[l].lineLength) * 1, 0, 1, 2);
-						shp.graphics.endFill();
-						lines[l].lineLength++;
-					}*/
-					
-					//lines[l].addShape(shp);
-					
-					//linesRemaining.push(lines[l]);
-					//trace(linesRemaining[linesRemaining.length - 1].chars == null);
-				//}
-				
-				/*lines[l].lineLength++;
-				lines[l].chars = null;*/
+				lines[l].x = l * (lineSpace + charHeight);
 			}
-			
-			/*while (linesRemaining.length > 0)
-			{
-				l = Math.floor(Math.random() * linesRemaining.length);
-				var diffLine:DiffLine = linesRemaining[l];
-				
-				if (diffLine.chars.length == 0) { continue; }
-				var charClr:uint = diffLine.chars.shift();
-				
-				shp = diffLine.lastShape;
-				
-				shp.graphics.beginFill(charClr, 1.0);
-				shp.graphics.drawRect((diffLine.lineLength) * 1, 0, 1, 2);
-				shp.graphics.endFill();
-				diffLine.lineLength++;
-				
-				if (diffLine.chars.length == 0)
-				{
-					diffLine.lineLength++;
-					linesRemaining.splice(l, 1);
-				}
-			}*/
 			
 			currentLine = 0;
 			
 			currentCol += 104;
 			
-			timer.reset();
+			/*timer.reset();
 			timer.repeatCount = 0;
-			timer.delay = 16;
-			timer.start();
+			timer.delay = 17;
+			timer.start();*/
+			addEventListener(Event.ENTER_FRAME, tick);
 		}
 		
 		private var shp:Shape;
 		
-		private function tick(e:TimerEvent):void
+		private function tick(e:Event):void
+		{
+			for (var i:uint = 0; i < numCharsPerFrame - 1; i++)
+			{
+				appendChar();
+			}
+		}
+		
+		private function appendChar():void
 		{
 			var l:uint = Math.floor(Math.random() * linesRemaining.length);
 			var diffLine:DiffLine = linesRemaining[l];
 			
-			//if (diffLine.chars.length == 0) { return; }
-			var charClr:uint = diffLine.chars.shift();
+			if (diffLine == null) { /*trace("pooop");*/ return; }
+			var codeChar:CodeChar = diffLine.chars.shift();
 			
 			shp = diffLine.lastShape;
 			
-			shp.graphics.beginFill(charClr, 1.0);
-			shp.graphics.drawRect((diffLine.lineLength) * 1, 0, 1, 1);
+			shp.graphics.beginFill(codeChar.clr, 1.0);
+			shp.graphics.drawRect(0, (diffLine.lineLength) * charWidth, charHeight, charWidth);
 			shp.graphics.endFill();
 			diffLine.lineLength++;
 			
-			var drop:Drop = new Drop(charClr);
-			drop.x = (diffLine.lineLength) * 1;
-			drop.y = diffLine.y;
+			var drop:Drop = new Drop(codeChar.clr, codeChar.char);
+			drop.y = (diffLine.lineLength) * charWidth + (charWidth / 2);
+			drop.x = diffLine.x + (charHeight / 2);
 			addChild(drop);
 			
 			if (diffLine.chars.length == 0)
@@ -342,8 +318,20 @@
 			
 			if (linesRemaining.length == 0)
 			{
-				timer.stop();
+				removeEventListener(Event.ENTER_FRAME, tick);
+				//timer.stop();
+				timer.reset();
+				timer.addEventListener(TimerEvent.TIMER, startLoad);
+				timer.repeatCount = 0;
+				timer.delay = 3000;
+				timer.start();
+				//loadFile();
 			}
+		}
+		
+		private function startLoad(e:TimerEvent):void
+		{
+			loadFile();
 		}
 		
 		private function timerComplete(e:TimerEvent):void
