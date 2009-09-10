@@ -40,7 +40,7 @@
 		private var charHeight:uint = 4;
 		private var lineSpace:uint = 2;
 		
-		private var numCharsPerFrame = 2;
+		private var numCharsPerFrame:uint = 2;
 		private var scale:Number = 1.0;
 		
 		public function Main():void
@@ -62,9 +62,6 @@
 			
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
-			
-			scaleX = scale;
-			scaleY = scale;
 			
 			var settings:URLLoader = new URLLoader();
 			settings.dataFormat = URLLoaderDataFormat.VARIABLES;
@@ -102,6 +99,25 @@
 			insertClr = uint(loader.data.insertClr);
 			deleteClr = uint(loader.data.deleteClr);
 			equalClr = uint(loader.data.equalClr);
+			charWidth = uint(loader.data.charWidth);
+			charHeight = uint(loader.data.charHeight);
+			lineSpace = uint(loader.data.lineSpace);
+			numCharsPerFrame = uint(loader.data.numCharsPerFrame);
+			scale = Number(loader.data.scale);
+			DiffLine.minAlpha = Number(loader.data.minAlpha);
+			DiffLine.alphaFade = Number(loader.data.alphaFade);
+			Drop.textSize = uint(loader.data.textSize);
+			Drop.boxAlphaFade = Number(loader.data.boxAlphaFade);
+			Drop.boxAlphaFadeDrop = Number(loader.data.boxAlphaFadeDrop);
+			Drop.horizSpeedFactor = Number(loader.data.horizSpeedFactor);
+			Drop.boxScaleSpeed = Number(loader.data.boxScaleSpeed);
+			Drop.boxScaleAccel = Number(loader.data.boxScaleAccel);
+			Drop.gravity = Number(loader.data.gravity);
+			
+			//trace(Drop.textSize);
+			
+			scaleX = scale;
+			scaleY = scale;
 		}
 		
 		private var fileNum:uint = 0;

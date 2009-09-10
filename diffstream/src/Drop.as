@@ -61,9 +61,15 @@
 		}
 		
 		private var vel:Number = 0;
-		private var scaleVel:Number = 2.4;
-		public static var hVelFactor:Number = 2.0;
-		private var hVel:Number = (Math.random() - 0.5) * hVelFactor;
+		
+		public static var boxScaleSpeed:Number = 2.4;
+		private var scaleSpeed = boxScaleSpeed;
+		public static var boxScaleAccel:Number = 0.2;
+		public static var horizSpeedFactor:Number = 2.0;
+		public static var boxAlphaFade:Number = 0.1;
+		public static var boxAlphaFadeDrop:Number = 0.05;
+		public static var gravity:Number = 0.25;
+		private var hVel:Number = (Math.random() - 0.5) * horizSpeedFactor;
 		
 		public function update(e:Event):void
 		{
@@ -80,22 +86,22 @@
 			
 			//if (scaleX < 16)
 			
-			if (scaleVel > 0)
+			if (scaleSpeed > 0)
 			{
-				box.alpha -= 0.1;
+				box.alpha -= boxAlphaFade;
 				//scaleX += 0.5;
-				scaleX += scaleVel;
+				scaleX += scaleSpeed;
 				scaleY = scaleX;
-				scaleVel -= 0.2;
+				scaleSpeed -= boxScaleAccel;
 			}
 			else
 			{
-				vel += 0.25;
+				vel += gravity;
 				y += vel;
 				x += hVel;
 				if (box.alpha > 0)
 				{
-					box.alpha -= 0.05;
+					box.alpha -= boxAlphaFadeDrop;
 				}
 			}
 			
