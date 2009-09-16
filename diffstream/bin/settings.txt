@@ -14,4 +14,4 @@ insertClr=0x40BFFF
 &boxScaleSpeed=2.4
 &boxScaleAccel=0.2
 &horizSpeedFactor=2.0
-&gravity=0.5
+&gravity=-0.5

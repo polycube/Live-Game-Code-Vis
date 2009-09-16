@@ -4,13 +4,13 @@
 <flex-config>
   <compiler>
     <source-path append="true">
-      <path-element>F:\datavis\Live-Game-Code-Vis\diffstream\src</path-element>
-      <path-element>F:\datavis\Live-Game-Code-Vis\DiffMatchPatch</path-element>
-      <path-element>D:\Program Files\FlashDevelop\Library\AS3\classes</path-element>
+      <path-element>E:\as\Live-Game-Code-Vis\diffstream\src</path-element>
+      <path-element>E:\as\Live-Game-Code-Vis\DiffMatchPatch</path-element>
+      <path-element>E:\as\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
   </compiler>
   <file-specs>
-    <path-element>F:\datavis\Live-Game-Code-Vis\diffstream\src\Main.as</path-element>
+    <path-element>E:\as\Live-Game-Code-Vis\diffstream\src\Main.as</path-element>
   </file-specs>
   <default-background-color>#282828</default-background-color>
   <default-frame-rate>30</default-frame-rate>

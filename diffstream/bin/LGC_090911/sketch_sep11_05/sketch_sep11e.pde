@@ -1,0 +1,11 @@
+size(200,200);
+background(155);
+stroke(0);
+line(0,0,100,100);
+stroke(255);
+noFill();
+rect(25,25,50,50);
+//fill(150);
+//rect (50, 40, 75, 100);
+//noFill();
+//ellipse(60,60,100,100);

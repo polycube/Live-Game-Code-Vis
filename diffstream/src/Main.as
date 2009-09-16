@@ -5,8 +5,10 @@
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.net.FileFilter;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.net.FileReference;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
@@ -43,6 +45,12 @@
 		private var numCharsPerFrame:uint = 2;
 		private var scale:Number = 1.0;
 		
+		private var fileNum:uint = 1;
+		
+		private var fr:FileReference;
+		private var fileName1:String;
+		private var fileName2:String;
+		
 		public function Main():void
 		{
 			if (stage) init();
@@ -61,12 +69,16 @@
 			trace(Security.sandboxType);*/
 			
 			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.align = StageAlign.TOP_LEFT;
+			stage.align = StageAlign.BOTTOM_LEFT; // TOP_LEFT;
 			
 			var settings:URLLoader = new URLLoader();
 			settings.dataFormat = URLLoaderDataFormat.VARIABLES;
 			settings.addEventListener(Event.COMPLETE, loadVarsComplete);
 			settings.load(new URLRequest("settings.txt"));
+			
+			fr = new FileReference();
+			fr.addEventListener(Event.SELECT, openFile);
+			fr.browse();
 			
 			differ = new diff_match_patch;
 			
@@ -85,7 +97,27 @@
 			
 			//stage.addEventListener(MouseEvent.CLICK, click);
 			//timer.start();
+			//loadFile();
+		}
+		
+		private function openFile(e:Event):void
+		{
+			trace(fr.name);
+			fileName1 = fr.name.substr(0, 10);
+			fileName2 = fr.name.substr(13, 4);
+			trace(fileName1 + "_##" + fileName2);
+			
 			loadFile();
+		}
+		
+		public function zeroPad(number:int, width:int):String
+		{
+		   var ret:String = "" + number;
+		   while (ret.length < width)
+		   {
+			   ret = "0" + ret;
+		   }
+		   return ret;
 		}
 		
 		private function click(e:MouseEvent):void
@@ -118,15 +150,23 @@
 			
 			scaleX = scale;
 			scaleY = scale;
+			
+			//y = stage.stageHeight;
 		}
-		
-		private var fileNum:uint = 0;
 		
 		private function loadFile():void
 		{
 			timer.removeEventListener(TimerEvent.TIMER_COMPLETE, loadFile);
 			timer.stop();
-			var request:URLRequest = new URLRequest("testcode\\test" + fileNum.toString() + ".txt");
+			//var request:URLRequest = new URLRequest("testcode\\test" + fileNum.toString() + ".txt");
+			var num:String = fileNum.toString();
+			if (num.length < 2)
+			{
+				num = "0" + num;
+			}
+			var fullName:String = fileName1 + "\\" + fileName1 + "_" + num + "\\" + fileName1 + "_" + num + fileName2;
+			trace(fullName);
+			var request:URLRequest = new URLRequest(fullName);
 			loader.load(request);
 			fileNum++;
 		}
@@ -139,8 +179,8 @@
 		private var currentLine:uint = 0;
 		private var currentCol:uint = 0;
 		
-		private var data1:String = null;
-		private var data2:String = null;
+		private var data1:String = "";
+		private var data2:String = "";
 		
 		private var linesRemaining:Array = new Array();
 		
@@ -194,7 +234,7 @@
 				for (var i:int = 0; i < s.length; i++)
 				{
 					var code:Number = s.charCodeAt(i);
-					if (code == 13) // carriage return
+					if (code == 10) // carriage return
 					{
 						if (currentChars.length > 0)
 						{
@@ -203,8 +243,9 @@
 								lines.splice(currentLine, 0, new DiffLine());
 								addChild(lines[currentLine]);
 							}
-							else if (currentChars[0].clr == insertClr
-								&& numInserted > numDeleted && numInserted > numEqual) // inserted line
+							else if ((currentChars[0].clr == insertClr
+								&& numInserted > numDeleted && numInserted > numEqual)
+								|| (numInserted > 1  && numDeleted < 2 && numEqual < 2)) // inserted line
 							{
 								lines.splice(currentLine, 0, new DiffLine());
 								addChild(lines[currentLine]);
@@ -237,7 +278,7 @@
 						numDeleted = 0;
 						numEqual = 0;
 					}
-					else if (code == 10) // line feed
+					else if (code == 13) // line feed
 					{
 						/*if (d.operation == Operation.INSERT)
 						{
@@ -282,7 +323,11 @@
 			for (l = 0; l < lines.length; l++)
 			{
 				lines[l].fade();
-				lines[l].x = l * (lineSpace + charHeight);
+				if (lines[l].targetX == -1)
+				{
+					lines[l].x = l * (lineSpace + charHeight);
+				}
+				lines[l].targetX = l * (lineSpace + charHeight);
 			}
 			
 			currentLine = 0;
@@ -314,15 +359,18 @@
 			if (diffLine == null) { /*trace("pooop");*/ return; }
 			var codeChar:CodeChar = diffLine.chars.shift();
 			
+			var pos = stage.stageHeight - (diffLine.lineLength) * charWidth;
+			
 			shp = diffLine.lastShape;
 			
 			shp.graphics.beginFill(codeChar.clr, 1.0);
-			shp.graphics.drawRect(0, (diffLine.lineLength) * charWidth, charHeight, charWidth);
+			//shp.graphics.drawRect(0, (diffLine.lineLength) * charWidth, charHeight, charWidth);
+			shp.graphics.drawRect(0, pos, charHeight, charWidth);
 			shp.graphics.endFill();
 			diffLine.lineLength++;
 			
 			var drop:Drop = new Drop(codeChar.clr, codeChar.char);
-			drop.y = (diffLine.lineLength) * charWidth + (charWidth / 2);
+			drop.y = pos + (charWidth / 2);
 			drop.x = diffLine.x + (charHeight / 2);
 			addChild(drop);
 			

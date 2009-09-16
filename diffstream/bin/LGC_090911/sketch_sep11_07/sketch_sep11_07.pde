@@ -13,7 +13,6 @@ background(255);
 //rect (50, 40, 75, 100);
 noStroke();
 
-/*
 //bright red
 fill(255,0,0);
 ellipse(20,20,16,16);
@@ -23,21 +22,6 @@ ellipse(40,20,16,16);
 //pink
 fill(255,200,200);
 ellipse(60,20,16,16);
-*/
-
-//bright blue?
-fill(0,0,255);
-ellipse(20,20,16,16);
-//dark purple?
-fill(50,0,50);
-ellipse(40,20,16,16);
-//yellow?
-fill(255,255,0);
-ellipse(60,20,16,16);
-
-
-
-
 
 //noFill();
 //ellipse(60,60,100,100);

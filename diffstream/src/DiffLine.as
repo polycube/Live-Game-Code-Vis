@@ -2,6 +2,7 @@
 {
 	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.events.Event;
 	
 	/**
 	 * ...
@@ -17,9 +18,23 @@
 		public static var minAlpha:Number = 0.4;
 		public static var alphaFade:Number = 0.1;
 		
+		public var targetX:Number = -1;
+		
 		public function DiffLine() 
 		{
-			
+			addEventListener(Event.ENTER_FRAME, update);
+		}
+		
+		public function update(e:Event):void
+		{
+			if (targetX - x < 0.1)
+			{
+				x = targetX;
+			}
+			else
+			{
+				x += (targetX - x) * 0.1;
+			}
 		}
 		
 		public function addShape(shp:Shape):void
@@ -27,6 +42,11 @@
 			shapes.push(shp);
 			this.addChild(shp);
 		}
+		
+		/*public function get numShapes():uint
+		{
+			return shapes.length;
+		}*/
 		
 		public function get lastShape():Shape
 		{

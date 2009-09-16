@@ -63,7 +63,7 @@
 		private var vel:Number = 0;
 		
 		public static var boxScaleSpeed:Number = 2.4;
-		private var scaleSpeed = boxScaleSpeed;
+		private var scaleSpeed:Number = boxScaleSpeed;
 		public static var boxScaleAccel:Number = 0.2;
 		public static var horizSpeedFactor:Number = 2.0;
 		public static var boxAlphaFade:Number = 0.1;
