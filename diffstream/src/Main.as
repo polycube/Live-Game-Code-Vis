@@ -1,5 +1,6 @@
 ﻿package 
 {
+	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.Shape;
 	import flash.display.Sprite;
@@ -20,10 +21,13 @@
 	import flash.display.StageScaleMode;
 	import flash.display.StageAlign;
 	import flash.events.IOErrorEvent;
+	import flash.system.fscommand;
 	import name.fraser.neil.plaintext.diff_match_patch;
 	import name.fraser.neil.plaintext.Diff;
 	import name.fraser.neil.plaintext.Operation;
 	//import flash.system.Security;
+	
+	//[SWF(width="800", height="600", backgroundColor="#DFEEEF")]
 	
 	public class Main extends Sprite
 	{
@@ -50,6 +54,13 @@
 		private var fr:FileReference;
 		private var fileName1:String;
 		private var fileName2:String;
+		
+		private var updateTimer:Timer = new Timer(67);
+		
+		public static var initialHeight:Number;
+		private var bgClr:uint = 0x282828;
+		private var delayBetweenDiffs:uint = 5000;
+		private var delayBeforeFade:uint = 4000;
 		
 		public function Main():void
 		{
@@ -92,6 +103,12 @@
 			loader.dataFormat = URLLoaderDataFormat.TEXT;
 			loader.addEventListener(Event.COMPLETE, loadComplete);
 			
+			initialHeight = stage.stageHeight;
+			
+			updateTimer.addEventListener(TimerEvent.TIMER, update);
+			
+			//fscommand("fullscreen", "true");
+			
 			//timer.addEventListener(TimerEvent.TIMER, tick);
 			//timer.addEventListener(TimerEvent.TIMER_COMPLETE, timerComplete);
 			
@@ -102,22 +119,12 @@
 		
 		private function openFile(e:Event):void
 		{
-			trace(fr.name);
+			//trace(fr.name);
 			fileName1 = fr.name.substr(0, 10);
 			fileName2 = fr.name.substr(13, 4);
-			trace(fileName1 + "_##" + fileName2);
+			//trace(fileName1 + "_##" + fileName2);
 			
 			loadFile();
-		}
-		
-		public function zeroPad(number:int, width:int):String
-		{
-		   var ret:String = "" + number;
-		   while (ret.length < width)
-		   {
-			   ret = "0" + ret;
-		   }
-		   return ret;
 		}
 		
 		private function click(e:MouseEvent):void
@@ -145,18 +152,41 @@
 			Drop.boxScaleSpeed = Number(loader.data.boxScaleSpeed);
 			Drop.boxScaleAccel = Number(loader.data.boxScaleAccel);
 			Drop.gravity = Number(loader.data.gravity);
+			bgClr = uint(loader.data.backgroundClr);
+			Drop.font = String(loader.data.font);
+			delayBetweenDiffs = uint(loader.data.delayBetweenDiffs);
+			delayBeforeFade = uint(loader.data.delayBeforeFade);
+			
+			var bg:Shape = new Shape();
+			stage.addChild(bg);
+			stage.swapChildren(bg, this);
+			bg.graphics.beginFill(bgClr, 1.0);
+			bg.graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
+			bg.graphics.endFill();
 			
 			//trace(Drop.textSize);
 			
 			scaleX = scale;
 			scaleY = scale;
 			
+			//stage.
+			
 			//y = stage.stageHeight;
+			
+			//updateTimer.start();
+		}
+		
+		private function update(e:TimerEvent):void
+		{
+			for (var i:int = 0; i < lines.length; i++)
+			{
+				lines[i].update();
+			}
 		}
 		
 		private function loadFile():void
 		{
-			timer.removeEventListener(TimerEvent.TIMER_COMPLETE, loadFile);
+			//timer.removeEventListener(TimerEvent.TIMER_COMPLETE, loadFile);
 			timer.stop();
 			//var request:URLRequest = new URLRequest("testcode\\test" + fileNum.toString() + ".txt");
 			var num:String = fileNum.toString();
@@ -165,7 +195,7 @@
 				num = "0" + num;
 			}
 			var fullName:String = fileName1 + "\\" + fileName1 + "_" + num + "\\" + fileName1 + "_" + num + fileName2;
-			trace(fullName);
+			//trace(fullName);
 			var request:URLRequest = new URLRequest(fullName);
 			loader.load(request);
 			fileNum++;
@@ -173,7 +203,64 @@
 		
 		private function onIoError(e:IOErrorEvent):void
 		{
-			trace("io error");
+			//trace("io error");
+			
+			//timer.stop();
+			timer.reset();
+			timer.addEventListener(TimerEvent.TIMER, beginFade);
+			timer.repeatCount = 0;
+			timer.delay = delayBeforeFade;
+			timer.start();
+		}
+		
+		private function beginFade(e:TimerEvent):void
+		{
+			timer.reset();
+			timer.removeEventListener(TimerEvent.TIMER, beginFade);
+			timer.addEventListener(TimerEvent.TIMER, fadeOut);
+			timer.repeatCount = 0;
+			timer.delay = 50;
+			timer.start();
+		}
+		
+		private function fadeOut(e:TimerEvent):void
+		{
+			this.alpha -= 0.01;
+			
+			if (alpha <= 0)
+			{
+				timer.removeEventListener(TimerEvent.TIMER, fadeOut);
+				timer.reset();
+				timer.addEventListener(TimerEvent.TIMER, reset);
+				timer.delay = delayBetweenDiffs;
+				timer.start();
+			}
+		}
+		
+		private function reset(e:TimerEvent):void
+		{
+			timer.removeEventListener(TimerEvent.TIMER, reset);
+			
+			fileNum = 1;
+			
+			currentLine = 0;
+			currentCol = 0;
+			
+			data1 = "";
+			data2 = "";
+			
+			linesRemaining = new Array();
+			
+			for each (var dispObj:DisplayObject in lines)
+			{
+				removeChild(dispObj);
+			}
+			
+			lines = new Array();
+			
+			alpha = 1.0;
+			
+			loadFile();
 		}
 		
 		private var currentLine:uint = 0;
@@ -325,7 +412,7 @@
 				lines[l].fade();
 				if (lines[l].targetX == -1)
 				{
-					lines[l].x = l * (lineSpace + charHeight);
+					lines[l].posX = l * (lineSpace + charHeight);
 				}
 				lines[l].targetX = l * (lineSpace + charHeight);
 			}
@@ -345,7 +432,14 @@
 		
 		private function tick(e:Event):void
 		{
-			for (var i:uint = 0; i < numCharsPerFrame - 1; i++)
+			var i:uint = 0;
+			
+			for (i = 0; i < lines.length; i++)
+			{
+				lines[i].update();
+			}
+			
+			for (i = 0; i < numCharsPerFrame - 1; i++)
 			{
 				appendChar();
 			}
@@ -359,7 +453,7 @@
 			if (diffLine == null) { /*trace("pooop");*/ return; }
 			var codeChar:CodeChar = diffLine.chars.shift();
 			
-			var pos = stage.stageHeight - (diffLine.lineLength) * charWidth;
+			var pos:Number = initialHeight - (diffLine.lineLength) * charWidth;
 			
 			shp = diffLine.lastShape;
 			
@@ -387,7 +481,7 @@
 				timer.reset();
 				timer.addEventListener(TimerEvent.TIMER, startLoad);
 				timer.repeatCount = 0;
-				timer.delay = 3000;
+				timer.delay = delayBetweenDiffs;
 				timer.start();
 				//loadFile();
 			}
@@ -395,6 +489,7 @@
 		
 		private function startLoad(e:TimerEvent):void
 		{
+			timer.removeEventListener(TimerEvent.TIMER, startLoad);
 			loadFile();
 		}
 		

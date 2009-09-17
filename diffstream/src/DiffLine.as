@@ -18,23 +18,28 @@
 		public static var minAlpha:Number = 0.4;
 		public static var alphaFade:Number = 0.1;
 		
+		public var posX:Number = -1;
 		public var targetX:Number = -1;
 		
 		public function DiffLine() 
 		{
-			addEventListener(Event.ENTER_FRAME, update);
+			//addEventListener(Event.ENTER_FRAME, update);
 		}
 		
-		public function update(e:Event):void
+		public function update(/*e:Event*/):void
 		{
-			if (targetX - x < 0.1)
+			if (Math.abs(targetX - posX) > 0)
 			{
-				x = targetX;
+				posX += (targetX - posX) * 0.1;
+				//trace(Math.abs(targetX - x));
+				if (Math.abs(targetX - posX) < 0.1)
+				{
+					//trace("poop");
+					posX = targetX;
+				}
 			}
-			else
-			{
-				x += (targetX - x) * 0.1;
-			}
+			
+			x = posX;
 		}
 		
 		public function addShape(shp:Shape):void

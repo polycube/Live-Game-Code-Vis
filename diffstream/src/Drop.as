@@ -18,6 +18,7 @@
 	public class Drop extends Sprite
 	{
 		public static var textSize:uint = 8;
+		public static var font:String = "Lucida Console";
 		//public static
 		private var box:Shape = new Shape();
 		
@@ -69,7 +70,7 @@
 		public static var boxAlphaFade:Number = 0.1;
 		public static var boxAlphaFadeDrop:Number = 0.05;
 		public static var gravity:Number = 0.25;
-		private var hVel:Number = (Math.random() - 0.5) * horizSpeedFactor;
+		private var hVel:Number = (Math.random() /*- 0.5*/) * horizSpeedFactor - 1.0;
 		
 		public function update(e:Event):void
 		{
@@ -97,15 +98,18 @@
 			else
 			{
 				vel += gravity;
-				y += vel;
-				x += hVel;
+				x += vel;
+				y += hVel;
 				if (box.alpha > 0)
 				{
 					box.alpha -= boxAlphaFadeDrop;
 				}
 			}
 			
-			if (y * parent.scaleY > stage.stageHeight)
+			if ((y * parent.scaleY > stage.stageHeight + 64)// && gravity > 0)
+			 || (y * parent.scaleY < Main.initialHeight - stage.stageHeight -64) // && gravity < 0)
+			 || (x * parent.scaleX > stage.stageWidth + 64)
+			 || (x * parent.scaleX < -64))
 			{
 				//trace("bloop");
 				removeEventListener(Event.ENTER_FRAME, update);
