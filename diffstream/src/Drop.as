@@ -35,7 +35,7 @@
 			var textFormat:TextFormat = new TextFormat();
 			textFormat.align = TextFormatAlign.CENTER;
 			textFormat.font = "Lucida Console";
-			textFormat.size = 8;
+			textFormat.size = textSize;
 			
 			var txtChar:TextField = new TextField();
 			txtChar.autoSize = TextFieldAutoSize.NONE;

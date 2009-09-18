@@ -12,7 +12,7 @@
   <file-specs>
     <path-element>F:\datavis\Live-Game-Code-Vis\diffstream\src\Main.as</path-element>
   </file-specs>
-  <default-background-color>#282828</default-background-color>
+  <default-background-color>#000000</default-background-color>
   <default-frame-rate>30</default-frame-rate>
   <default-size>
     <width>800</width>

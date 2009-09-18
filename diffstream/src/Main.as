@@ -6,6 +6,7 @@
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.geom.Point;
 	import flash.net.FileFilter;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
@@ -22,6 +23,8 @@
 	import flash.display.StageAlign;
 	import flash.events.IOErrorEvent;
 	import flash.system.fscommand;
+	import flash.display.StageDisplayState;
+	import flash.display.StageQuality;
 	import name.fraser.neil.plaintext.diff_match_patch;
 	import name.fraser.neil.plaintext.Diff;
 	import name.fraser.neil.plaintext.Operation;
@@ -62,6 +65,12 @@
 		private var delayBetweenDiffs:uint = 5000;
 		private var delayBeforeFade:uint = 4000;
 		
+		private var screenStretch:Boolean = false;
+		private var screenBorder:Boolean = false;
+		
+		private var bg:Shape = new Shape();
+		private var msk:Shape = new Shape();
+		
 		public function Main():void
 		{
 			if (stage) init();
@@ -78,9 +87,6 @@
 			textBox.textColor = 0xFFFF00;
 			textBox.text = Security.sandboxType;
 			trace(Security.sandboxType);*/
-			
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.align = StageAlign.BOTTOM_LEFT; // TOP_LEFT;
 			
 			var settings:URLLoader = new URLLoader();
 			settings.dataFormat = URLLoaderDataFormat.VARIABLES;
@@ -115,6 +121,15 @@
 			//stage.addEventListener(MouseEvent.CLICK, click);
 			//timer.start();
 			//loadFile();
+		}
+		
+		private function resize(e:Event):void
+		{
+			bg.graphics.clear();
+			bg.graphics.beginFill(bgClr, 1.0);
+			bg.graphics.drawRect(0, initialHeight - stage.stageHeight, stage.stageWidth, stage.stageHeight);
+			bg.graphics.endFill();
+			//trace("resize");
 		}
 		
 		private function openFile(e:Event):void
@@ -156,13 +171,50 @@
 			Drop.font = String(loader.data.font);
 			delayBetweenDiffs = uint(loader.data.delayBetweenDiffs);
 			delayBeforeFade = uint(loader.data.delayBeforeFade);
+			screenStretch = Boolean(uint(loader.data.screenStretch));
+			screenBorder = Boolean(uint(loader.data.screenBorder));
 			
-			var bg:Shape = new Shape();
+			//stage.quality = StageQuality.LOW;
+			
+			if (screenStretch)
+			{
+				stage.scaleMode = StageScaleMode.SHOW_ALL;
+			}
+			else
+			{
+				stage.scaleMode = StageScaleMode.NO_SCALE;
+			}
+			
+			if (screenBorder)
+			{
+				//stage.align = StageAlign.
+			}
+			else
+			{
+				stage.align = StageAlign.BOTTOM_LEFT; // TOP_LEFT;
+			}
+			
+			if (/*!screenStretch &&*/ !screenBorder)
+			{
+				stage.addEventListener(Event.RESIZE, resize);
+				stage.addEventListener(Event.FULLSCREEN, resize);
+				//trace(screenBorder);
+			}
+			
 			stage.addChild(bg);
 			stage.swapChildren(bg, this);
 			bg.graphics.beginFill(bgClr, 1.0);
 			bg.graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
 			bg.graphics.endFill();
+			
+			if (!screenStretch && screenBorder)
+			{
+				msk.graphics.beginFill(bgClr, 1.0);
+				msk.graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
+				msk.graphics.endFill();
+				stage.addChild(msk);
+				mask = msk;
+			}
 			
 			//trace(Drop.textSize);
 			
